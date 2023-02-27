@@ -1,0 +1,46 @@
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cloud-ide-controller-deploy
+  name: cloud-ide-controller
+  namespace: cloud-ide-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-ide-controller
+  template:
+    metadata:
+      labels:
+        app: cloud-ide-controller
+    spec:
+      serviceAccount: cloud-ide-controller-sa
+      containers:
+      - name: controller
+        image: registry.cn-hangzhou.aliyuncs.com/mangohow-apps/cloud-ide-k8s-controller:v1.0
+        args: ["-mode", "debug"]
+        ports:
+        - containerPort: 6387
+
+
+
+# service ClusterIp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cloud-ide-controller-svc
+  name: cloud-ide-controller-svc
+  namespace: cloud-ide-apps
+spec:
+  ports:
+  - port: 6387
+    protocol: TCP
+    targetPort: 6387
+  selector:
+    app: cloud-ide-controller
+  type: ClusterIP

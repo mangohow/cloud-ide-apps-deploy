@@ -1,0 +1,93 @@
+# pv
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cloud-ide-mysql-pv
+  labels:
+    app: mysql-pv
+spec:
+  nfs: # 存储类型，和底层正则的存储对应
+    path: /data/nfs/cloud-ide-mysql
+    server: 192.168.44.100
+  capacity: # 存储能力，目前只支持存储空间的设置
+    storage: 5Gi
+  accessModes: # 访问模式
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain # 回收策略
+
+
+
+# pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cloud-ide-mysql-pvc
+  namespace: cloud-ide-apps
+spec:
+  selector:
+    matchLabels:
+      app: mysql-pv
+  accessModes: # 访客模式
+  - ReadWriteMany
+  resources: # 请求空间
+    requests:
+      storage: 5Gi
+
+
+# 定义mysql的Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cloud-ide-mysql
+  name: mysql
+  namespace: cloud-ide-apps
+spec:
+  selector:
+    matchLabels:
+      app: cloud-ide-mysql
+  template:
+    metadata:
+      labels:
+        app: cloud-ide-mysql
+    spec:
+      containers:
+      - image: mysql:8.0
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456@@"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysqlvolume
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysqlvolume
+        # 使用pvc
+        persistentVolumeClaim:
+          claimName: cloud-ide-mysql-pvc
+
+
+
+
+#定义mysql的Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cloud-ide-mysql-svc
+  name: cloud-ide-mysql-svc
+  namespace: cloud-ide-apps
+spec:
+  selector:
+    app: cloud-ide-mysql
+  type: NodePort
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+    nodePort: 30306

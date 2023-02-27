@@ -1,0 +1,33 @@
+server:
+  host: "0.0.0.0"
+  port: 8088
+  name: "unknown"
+  mode: "Release"
+
+mysql:
+  dataSourceName: "root:123456@(10.100.198.85:3306)/cloudcode?charset=utf8mb4&parseTime=true&loc=Local"
+  maxOpenConns: 20
+  maxIdleConns: 10
+
+logger:
+  level: "DEBUG"
+  filePath: "./log_file"
+  fileName: "log.log"
+  maxFileSize: 1073741824
+  toFile: false
+
+redis:
+  addr: "10.102.123.62:6379"
+  poolSize: 10
+  minIdleConns: 5
+  password: ""
+  db: 0
+
+grpc:
+  addr: "10.97.80.181:6387"
+
+email:
+  host: "smtp.qq.com"
+  port: 25
+  senderEmail: ""
+  authCode: ""

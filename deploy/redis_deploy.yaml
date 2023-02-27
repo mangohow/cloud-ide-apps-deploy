@@ -1,0 +1,89 @@
+# pv
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cloud-ide-redis-pv
+  labels:
+    app: redis-pv
+spec:
+  nfs: # 存储类型，和底层正则的存储对应
+    path: /data/nfs/cloud-ide-redis
+    server: 192.168.44.100
+  capacity: # 存储能力，目前只支持存储空间的设置
+    storage: 5Gi
+  accessModes: # 访问模式
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain # 回收策略
+
+
+
+# pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cloud-ide-redis-pvc
+  namespace: cloud-ide-apps
+spec:
+  selector:
+    matchLabels:
+      app: redis-pv
+  accessModes: # 访客模式
+  - ReadWriteMany
+  resources: # 请求空间
+    requests:
+      storage: 5Gi
+
+
+# 定义mysql的Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cloud-ide-redis
+  name: reids
+  namespace: cloud-ide-apps
+spec:
+  selector:
+    matchLabels:
+      app: cloud-ide-redis
+  template:
+    metadata:
+      labels:
+        app: cloud-ide-redis
+    spec:
+      containers:
+      - image: redis
+        name: redis
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redisvolume
+          mountPath: /data
+      volumes:
+      - name: redisvolume
+        # 使用pvc
+        persistentVolumeClaim:
+          claimName: cloud-ide-redis-pvc
+
+
+
+
+#定义mysql的Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cloud-ide-redis-svc
+  name: cloud-ide-redis-svc
+  namespace: cloud-ide-apps
+spec:
+  selector:
+    app: cloud-ide-redis
+  type: ClusterIP
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379

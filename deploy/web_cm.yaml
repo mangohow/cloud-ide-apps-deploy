@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloud-ide-web-cm
+  namespace: cloud-ide-apps
+data:
+  application.yaml:

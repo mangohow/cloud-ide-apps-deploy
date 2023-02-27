@@ -1,0 +1,51 @@
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cloud-ide-web-deploy
+  name: cloud-ide-web
+  namespace: cloud-ide-apps
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cloud-ide-web
+  template:
+    metadata:
+      labels:
+        app: cloud-ide-web
+    spec:
+      containers:
+      - name: web
+        image: registry.cn-hangzhou.aliyuncs.com/mangohow-apps/cloud-ide-webserver:v1.0
+        ports:
+        - containerPort: 8088
+        volumeMounts:
+        - name: conf
+          mountPath: /app/conf
+      volumes:
+      - name: conf
+        configMap:
+          name: cloud-ide-web-cm
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cloud-ide-web-svc
+  name: cloud-ide-web-svc
+  namespace: cloud-ide-apps
+spec:
+  ports:
+  - port: 8088
+    protocol: TCP
+    targetPort: 8088
+    nodePort: 30088
+  selector:
+    app: cloud-ide-web
+  type: NodePort
+
