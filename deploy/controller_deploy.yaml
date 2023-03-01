@@ -21,7 +21,7 @@ spec:
       containers:
       - name: controller
         image: registry.cn-hangzhou.aliyuncs.com/mangohow-apps/cloud-ide-k8s-controller:v1.0
-        args: ["-mode", "debug"]
+        args: ["--mode", "debug"]
         ports:
         - containerPort: 6387
 

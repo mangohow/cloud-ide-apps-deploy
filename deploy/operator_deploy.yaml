@@ -1,0 +1,58 @@
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cloud-ide-operator-deploy
+  name: cloud-ide-operator
+  namespace: cloud-ide-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-ide-operator
+  template:
+    metadata:
+      labels:
+        app: cloud-ide-operator
+    spec:
+      serviceAccountName: cloud-ide-operator-sa
+      containers:
+      - name: operator
+        image: registry.cn-hangzhou.aliyuncs.com/mangohow-apps/cloud-ide-k8s-operator:v1.0
+        args: ["--mode", "dev"]
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        ports:
+        - containerPort: 6387
+        - containerPort: 8081
+
+
+# service ClusterIp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cloud-ide-operator-svc
+  name: cloud-ide-operator-svc
+  namespace: cloud-ide-apps
+spec:
+  ports:
+  - port: 6387
+    protocol: TCP
+    targetPort: 6387
+  selector:
+    app: cloud-ide-operator
+  type: ClusterIP
