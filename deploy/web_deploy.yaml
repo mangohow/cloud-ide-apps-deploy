@@ -8,7 +8,7 @@ metadata:
   name: cloud-ide-web
   namespace: cloud-ide-apps
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: cloud-ide-web

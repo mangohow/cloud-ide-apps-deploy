@@ -5,7 +5,7 @@ server:
   mode: "Release"
 
 mysql:
-  dataSourceName: "root:123456@(10.100.198.85:3306)/cloudcode?charset=utf8mb4&parseTime=true&loc=Local"
+  dataSourceName: "root:123456@@@(cloud-ide-mysql-svc:3306)/cloudcode?charset=utf8mb4&parseTime=true&loc=Local"
   maxOpenConns: 20
   maxIdleConns: 10
 
@@ -17,14 +17,14 @@ logger:
   toFile: false
 
 redis:
-  addr: "10.102.123.62:6379"
+  addr: "cloud-ide-redis-svc:6379"
   poolSize: 10
   minIdleConns: 5
   password: ""
   db: 0
 
 grpc:
-  addr: "10.97.80.181:6387"
+  addr: "cloud-ide-operator-svc:6387"
 
 email:
   host: "smtp.qq.com"
